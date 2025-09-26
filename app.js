@@ -3,6 +3,7 @@ class ConversationGame {
         this.currentPageIndex = 0;
         this.pageSequence = [];
         this.pdfContainer = document.getElementById('pdf-container');
+        this.pdfIframe = document.getElementById('pdf-iframe');
         this.loadingEl = document.getElementById('loading');
         this.errorEl = document.getElementById('error');
         this.progressFill = document.getElementById('progress-fill');
@@ -12,7 +13,7 @@ class ConversationGame {
         this.init();
     }
 
-    init() {
+    async init() {
         try {
             this.setupPageSequence();
             this.setupEventListeners();
@@ -56,7 +57,7 @@ class ConversationGame {
     }
 
     setupEventListeners() {
-        // Handle clicks anywhere on the document (outside iframe)
+        // Handle clicks anywhere on the document
         document.addEventListener('click', (e) => {
             e.preventDefault();
             this.nextPage();
@@ -76,49 +77,10 @@ class ConversationGame {
             }
         });
 
-        // Handle clicks on the PDF container specifically
-        this.pdfContainer.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.nextPage();
-        });
-
         // Handle resize
         window.addEventListener('resize', () => {
             this.showCurrentPage();
         });
-
-        // Don't add overlay here - it will be added after PDF loads
-    }
-
-    addClickOverlay() {
-        // Remove existing overlay if present
-        const existingOverlay = document.getElementById('click-overlay');
-        if (existingOverlay) {
-            existingOverlay.remove();
-        }
-        
-        const overlay = document.createElement('div');
-        overlay.id = 'click-overlay';
-        overlay.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 5;
-            cursor: pointer;
-            background: transparent;
-        `;
-        overlay.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('Overlay clicked, advancing to next page');
-            this.nextPage();
-        });
-        
-        this.pdfContainer.style.position = 'relative'; // Ensure container is positioned
-        this.pdfContainer.appendChild(overlay);
-        console.log('Click overlay added');
     }
 
     showCurrentPage() {
@@ -129,29 +91,15 @@ class ConversationGame {
         const pageNum = this.pageSequence[this.currentPageIndex];
         
         try {
-            // Clear previous content
-            this.pdfContainer.innerHTML = '';
+            // Use iframe with PDF parameters to minimize toolbar visibility
+            // Different browsers handle these parameters differently
+            const pdfUrl = `./conversation-cards.pdf#page=${pageNum}&zoom=page-fit&toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+            this.pdfIframe.src = pdfUrl;
             
-            // Create iframe to display specific page of PDF
-            const iframe = document.createElement('iframe');
-            iframe.src = `./conversation-cards.pdf#page=${pageNum}`;
-            iframe.style.cssText = `
-                width: 100%;
-                height: 100vh;
-                border: none;
-                background: white;
-            `;
-            iframe.title = `Conversation Card Page ${pageNum}`;
-            
-            // Handle iframe load errors
-            iframe.onerror = () => {
+            // Add error handling for iframe
+            this.pdfIframe.onerror = () => {
                 this.showPDFAlternative(pageNum);
             };
-            
-            this.pdfContainer.appendChild(iframe);
-            
-            // Re-add click overlay after adding iframe
-            this.addClickOverlay();
             
             // Update progress
             this.updateProgress();
@@ -165,7 +113,8 @@ class ConversationGame {
     }
 
     showPDFAlternative(pageNum) {
-        // Fallback: show PDF in object tag or provide download link
+        // Fallback: show error message
+        this.pdfIframe.style.display = 'none';
         this.pdfContainer.innerHTML = `
             <div style="
                 display: flex;
@@ -175,24 +124,11 @@ class ConversationGame {
                 height: 100vh;
                 text-align: center;
                 padding: 20px;
-                background: white;
-                color: black;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
             ">
                 <h2>Page ${pageNum}</h2>
-                <p>PDF viewer not supported in this browser.</p>
-                <object data="./conversation-cards.pdf#page=${pageNum}" type="application/pdf" style="width: 90%; height: 70%; margin: 20px;">
-                    <p>
-                        <a href="./conversation-cards.pdf#page=${pageNum}" target="_blank" style="
-                            background: #4caf50;
-                            color: white;
-                            padding: 10px 20px;
-                            text-decoration: none;
-                            border-radius: 5px;
-                            display: inline-block;
-                            margin-top: 20px;
-                        ">View PDF Page ${pageNum}</a>
-                    </p>
-                </object>
+                <p>Failed to load PDF page. Please refresh to try again.</p>
                 <p style="margin-top: 20px; font-size: 14px; opacity: 0.7;">
                     Click anywhere to continue to next page
                 </p>
@@ -216,6 +152,7 @@ class ConversationGame {
     }
 
     showCompletion() {
+        this.pdfIframe.style.display = 'none';
         this.pdfContainer.innerHTML = '';
         this.clickHint.style.display = 'none';
         
