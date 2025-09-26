@@ -1,0 +1,20 @@
+# GitHub Pages configuration for conversation-game PWA
+# This repository is configured to be deployed via GitHub Pages
+
+# Enable GitHub Pages deployment from root directory
+include:
+  - "*.html"
+  - "*.js"
+  - "*.json"
+  - "*.pdf"
+  - "*.png"
+  - "*.svg"
+
+# Jekyll configuration (GitHub Pages uses Jekyll by default)
+plugins:
+  - jekyll-relative-links
+
+# Exclude unnecessary files
+exclude:
+  - README.md
+  - .gitignore

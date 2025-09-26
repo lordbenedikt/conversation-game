@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4caf50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2e7d32;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#grad)" rx="50" ry="50"/>
+  <g transform="translate(256,256)">
+    <!-- Speech bubble -->
+    <ellipse cx="0" cy="-25" rx="130" ry="90" fill="white"/>
+    <!-- Bubble tail -->
+    <polygon points="-50,50 -90,120 -25,65" fill="white"/>
+    <!-- Dots inside bubble -->
+    <circle cx="-40" cy="-25" r="12" fill="#4caf50"/>
+    <circle cx="0" cy="-25" r="12" fill="#4caf50"/>
+    <circle cx="40" cy="-25" r="12" fill="#4caf50"/>
+  </g>
+</svg>
